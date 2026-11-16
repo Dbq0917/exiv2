@@ -1699,6 +1699,11 @@ int metacopy(const std::string& source, const std::string& tgt, Exiv2::ImageType
     }
     if (preserve) {
       for (const auto& exif : sourceImage->exifData()) {
+        // JPEG XR decoding/layout fields belong to the target container.
+        if (targetImage->imageType() == Exiv2::ImageType::jxr && exif.ifdId() == Exiv2::IfdId::ifd0Id &&
+            ((exif.tag() >= 0xbc00 && exif.tag() <= 0xbcff) || exif.tag() == 0x0129)) {
+          continue;
+        }
         targetImage->exifData()[exif.key()] = exif.value();
       }
     } else {
